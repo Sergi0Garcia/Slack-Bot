@@ -1,62 +1,69 @@
-const express = require("express");
-const bodyParser = require("body-parser");
-const { web } = require("../../../services/slack/configs");
+const express = require('express');
+const bodyParser = require('body-parser');
+const { web } = require('../../../services/slack/configs');
+
 const Router = express.Router();
 
 Router.use(bodyParser.urlencoded({ extended: true }));
 
-Router.post("/test", async (req, res) => {
+/**
+ * Opens a modal with inputs for typing one liner and choosing user from workspace
+ * @route POST /slack/slashCommands/test
+ * @access Public
+ * @params Text ( One liner ) and User ( Destinatary )
+ */
+
+Router.post('/test', async (req, res) => {
   try {
-    const id_sending = req.body.user_id;
     const triggerId = req.body.trigger_id;
     await web.views.open({
       trigger_id: triggerId,
       view: {
-        type: "modal",
-        callback_id: "modal-identifier",
+        type: 'modal',
+        callback_id: 'modal-identifier',
         title: {
-          type: "plain_text",
-          text: "Send One liner"
+          type: 'plain_text',
+          text: 'Send One liner'
         },
         submit: {
-          type: "plain_text",
-          text: "Submit"
+          type: 'plain_text',
+          text: 'Submit'
         },
         close: {
-          type: "plain_text",
-          text: "Cancel"
+          type: 'plain_text',
+          text: 'Cancel'
         },
         blocks: [
           {
-            type: "input",
-            block_id: "inputblock",
+            type: 'input',
+            block_id: 'inputblock',
             element: {
-              type: "plain_text_input",
-              action_id: "inputIdentifier",
+              type: 'plain_text_input',
+              action_id: 'inputIdentifier',
               placeholder: {
-                type: "plain_text",
-                text: "What have you done today?"
+                type: 'plain_text',
+                text: 'What have you done today?'
               }
             },
             label: {
-              type: "plain_text",
-              text: "Please enter your One liner"
+              type: 'plain_text',
+              text: 'Please enter your One liner'
             }
           },
           {
-            type: "input",
-            block_id: "userblock",
+            type: 'input',
+            block_id: 'userblock',
             element: {
-              type: "users_select",
-              action_id: "userIdentifier",
+              type: 'users_select',
+              action_id: 'userIdentifier',
               placeholder: {
-                type: "plain_text",
-                text: "User?"
+                type: 'plain_text',
+                text: 'User?'
               }
             },
             label: {
-              type: "plain_text",
-              text: "Please select user"
+              type: 'plain_text',
+              text: 'Please select user'
             }
           }
         ]

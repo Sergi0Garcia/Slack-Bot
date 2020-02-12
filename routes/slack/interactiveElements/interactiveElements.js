@@ -1,45 +1,59 @@
-const express = require("express");
-const { web, slackInteractions } = require("../../../services/slack/configs");
+const express = require('express');
+const { web, slackInteractions } = require('../../../services/slack/configs');
+
 const Router = express.Router();
-//const bodyParser = require("body-parser");
-//Router.use(bodyParser.urlencoded({ extended: true }));
+// const bodyParser = require("body-parser");
+// Router.use(bodyParser.urlencoded({ extended: true }));
 
 Router.use(slackInteractions.requestListener());
 
-slackInteractions.action(
-  { actionId: "received_button" },
-  async (payload, respond) => {
-    const user_id = payload.actions[0].value;
-    const ts = payload.actions[0].action_ts;
-    const message_ts = payload.message.ts;
-    console.log(payload.channel.id);
-    await web.chat.postMessage({
-      channel: user_id,
-      as_user: true,
-      blocks: [
-        {
-          type: "section",
-          text: {
-            type: "mrkdwn",
-            text: `One liner received`
-          }
+/**
+ * Action response after trigger
+ * @params actionId
+ * Function that once button pushed sends to user message
+ */
+
+slackInteractions.action({ actionId: 'received_button' }, async payload => {
+  const user_id = payload.actions[0].value;
+  const message_ts = payload.message.ts;
+  await web.chat.postMessage({
+    channel: user_id,
+    as_user: true,
+    blocks: [
+      {
+        type: 'section',
+        text: {
+          type: 'mrkdwn',
+          text: `One liner received`
         }
-      ]
-    });
-    //await respond({ text: "Thanks" });
-    await web.chat.update({
-      as_user: true,
-      channel: payload.channel.id,
-      ts: message_ts,
-      text: "Thanks",
-      blocks: []
-    });
-  }
-);
+      }
+    ]
+  });
+
+  /**
+   * Use RESPOND parameter in async declaration
+   * await respond({ text: "Thanks" });
+   * Function that clears button and displays just a text
+   */
+
+  await web.chat.update({
+    as_user: true,
+    channel: payload.channel.id,
+    ts: message_ts,
+    text: 'Thanks',
+    blocks: []
+  });
+});
+
+/**
+ * Actions after opening the slack Modal
+ * @params callbackId
+ * Function that sends message and button to the desired user with payload message
+ */
 
 slackInteractions.viewSubmission(
-  { callbackId: "modal-identifier" },
-  async (payload, response) => {
+  { callbackId: 'modal-identifier' },
+  async payload => {
     const userID =
       payload.view.state.values.userblock.userIdentifier.selected_user;
     const oneLiner = payload.view.state.values.inputblock.inputIdentifier.value;
@@ -50,22 +64,22 @@ slackInteractions.viewSubmission(
       as_user: true,
       blocks: [
         {
-          type: "section",
+          type: 'section',
           text: {
-            type: "mrkdwn",
+            type: 'mrkdwn',
             text: `From @${user_sending}: ${oneLiner}`
           }
         },
         {
-          type: "actions",
+          type: 'actions',
           elements: [
             {
-              type: "button",
+              type: 'button',
               text: {
-                type: "plain_text",
-                text: "Received"
+                type: 'plain_text',
+                text: 'Received'
               },
-              action_id: "received_button",
+              action_id: 'received_button',
               value: id_sending
             }
           ]
